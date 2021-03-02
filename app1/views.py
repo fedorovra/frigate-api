@@ -9,9 +9,12 @@ from django.http import Http404, HttpResponseForbidden
 
 tokens = ['F64e9CtMpmtjJLfJ',]
 
-def get_token(modem_ip):
+def get_modem_ip(modem):
+    return '192.168.' + str(modem) + '.1'
+
+def get_token(modem):
     try:
-        resp = requests.get('http://' + modem_ip + '/api/webserver/SesTokInfo', timeout=1)
+        resp = requests.get('http://' + get_modem_ip(modem) + '/api/webserver/SesTokInfo', timeout=1)
         token = xmltodict.parse(resp.text)['response']['TokInfo']
         session = xmltodict.parse(resp.text)['response']['SesInfo']
     except Exception as error:
@@ -21,10 +24,10 @@ def get_token(modem_ip):
         return headers
 
 
-def get_mode(modem_ip):
-    headers = get_token(modem_ip)
+def get_mode(modem):
+    headers = get_token(modem)
     try:
-        status = requests.get('http://' + modem_ip + '/api/net/net-mode', headers=headers)
+        status = requests.get('http://' + get_modem_ip(modem) + '/api/net/net-mode', headers=headers)
     except Exception as error:
         raise Http404()
     else:
@@ -57,7 +60,7 @@ def api_setmode(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/net/net-mode', headers=headers, data=data)
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/net/net-mode', headers=headers, data=data)
             except Exception as error:
                 raise Http404()
             else:
@@ -77,7 +80,7 @@ def api_reboot(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/device/control', headers=headers, data=data)
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/device/control', headers=headers, data=data)
             except Exception as error:
                 raise Http404()
             else:
@@ -105,7 +108,7 @@ def api_sms_send(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/sms/send-sms', headers=headers, data=data.encode('utf-8'))
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/sms/send-sms', headers=headers, data=data.encode('utf-8'))
             except Exception as error:
                 raise Http404()
             else:
@@ -130,7 +133,7 @@ def api_sms_read(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/sms/sms-list', headers=headers, data=data)
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/sms/sms-list', headers=headers, data=data)
             except Exception as error:
                 raise Http404()
             else:
@@ -150,7 +153,7 @@ def api_sms_delete(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/sms/delete-sms', headers=headers, data=data)
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/sms/delete-sms', headers=headers, data=data)
             except Exception as error:
                 raise Http404()
             else:
@@ -171,7 +174,7 @@ def api_ussd(request):
                    </request>
                    """
             try:
-                status = requests.post('http://' + request.GET['modem'] + '/api/ussd/send', headers=headers, data=data)
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/ussd/send', headers=headers, data=data)
             except Exception as error:
                 raise Http404()
 
@@ -179,7 +182,7 @@ def api_ussd(request):
             
             headers = get_token(request.GET['modem'])
             try:
-                status = requests.get('http://' + request.GET['modem'] + '/api/ussd/get', headers=headers)
+                status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/ussd/get', headers=headers)
             except Exception as error:
                 raise Http404()
             else:
@@ -193,7 +196,7 @@ def api_signal(request):
         if request.GET['key'] in tokens:
             headers = get_token(request.GET['modem'])
             try:
-                status = requests.get('http://' + request.GET['modem'] + '/api/device/signal', headers=headers)
+                status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/device/signal', headers=headers)
             except Exception as error:
                 raise Http404()
             else:
@@ -207,7 +210,7 @@ def api_provider(request):
         if request.GET['key'] in tokens:
             headers = get_token(request.GET['modem'])
             try:
-                status = requests.get('http://' + request.GET['modem'] + '/api/net/current-plmn', headers=headers)
+                status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/net/current-plmn', headers=headers)
             except Exception as error:
                 raise Http404()
             else:
@@ -222,12 +225,12 @@ def api_geo(request):
             headers = get_token(request.GET['modem'])
 
             try:
-                status = requests.get('http://' + request.GET['modem'] + '/api/device/signal', headers=headers)
+                status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/device/signal', headers=headers)
             except Exception as error:
                 raise Http404()
             cid = xmltodict.parse(status.text)['response']['cell_id']
 
-            status = requests.get('http://' + request.GET['modem'] + '/api/net/current-plmn', headers=headers)
+            status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/net/current-plmn', headers=headers)
             mcc = xmltodict.parse(status.text)['response']['Numeric'][0:3]
             mnc = xmltodict.parse(status.text)['response']['Numeric'][3:]
 
@@ -246,9 +249,10 @@ def api_geo(request):
 def api_check(request):
     if request.method == 'GET':
         if request.GET['key'] in tokens:
+            modem_ip = get_modem_ip(request.GET['modem']) + '00'
             session = requests.Session()
             try:
-                iface = source.SourceAddressAdapter(request.GET['modem'])
+                iface = source.SourceAddressAdapter(modem_ip)
                 session.mount('https://', iface)
                 ip = session.get('https://ipinfo.io/ip')
                 org = session.get('https://ipinfo.io/org?token=a1b8eb50c0764e')
@@ -256,7 +260,7 @@ def api_check(request):
             except Exception as error:
                 raise Http404()
 
-            response = { 'response' : { 'int' : request.GET['modem'], 'ext' : ip.text.rstrip("\n"), 'org' : org.text.rstrip("\n"), 'city' : city.text.rstrip("\n"), } }
+            response = { 'response' : { 'int' : modem_ip, 'ext' : ip.text.rstrip("\n"), 'org' : org.text.rstrip("\n"), 'city' : city.text.rstrip("\n"), } }
             return JsonResponse(response, safe=False)
         else:
             return HttpResponseForbidden()
