@@ -6,11 +6,15 @@ import xmltodict
 import requests
 from requests_toolbelt.adapters import source
 from django.http import Http404, HttpResponseForbidden
+from django.core import serializers
 
-tokens = ['F64e9CtMpmtjJLfJ',]
+from .models import APIKeys
+
+tokens = ['F64e9CtMpmtjJLfJ','Q7cuaYgpBGj8xtphhbbAUEfZR',]
 
 def get_modem_ip(modem):
     return '192.168.' + str(modem) + '.1'
+
 
 def get_token(modem):
     try:
@@ -32,6 +36,27 @@ def get_mode(modem):
         raise Http404()
     else:
         return status.text
+
+
+def api_get_keys(request):
+    if request.method == 'GET':
+        if request.GET['key'] in tokens:
+            return JsonResponse(serializers.serialize('json', APIKeys.objects.all()), safe=False)
+        else:
+            return HttpResponseForbidden()
+
+def api_create_keys(request):
+    if request.method == 'GET':
+        if request.GET['key'] in tokens:
+            try:
+                key = APIKeys.objects.create(api_key=request.GET['k'], permissions=request.GET['p'], is_active=request.GET['a'])
+                key.save()
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
 
 
 def api_getmode(request):
