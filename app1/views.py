@@ -12,6 +12,19 @@ from .models import APIKeys
 
 tokens = ['F64e9CtMpmtjJLfJ','Q7cuaYgpBGj8xtphhbbAUEfZR',]
 
+
+def api_keys_check(request, perm):
+    try:
+        key = APIKeys.objects.get(api_key=request.GET['key'])
+    except Exception as error:
+        return False
+    else:
+        if perm in key.permissions.split(',') and key.is_active == 'Y':
+            return True
+        else:
+            return False
+
+
 def get_modem_ip(modem):
     return '192.168.' + str(modem) + '.1'
 
@@ -38,16 +51,17 @@ def get_mode(modem):
         return status.text
 
 
-def api_get_keys(request):
+def api_keys_get(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sys'):
             return JsonResponse(serializers.serialize('json', APIKeys.objects.all()), safe=False)
         else:
             return HttpResponseForbidden()
 
-def api_create_keys(request):
+
+def api_keys_create(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sys'):
             try:
                 key = APIKeys.objects.create(api_key=request.GET['k'], permissions=request.GET['p'], is_active=request.GET['a'])
                 key.save()
@@ -59,9 +73,23 @@ def api_create_keys(request):
             return HttpResponseForbidden()
 
 
+def api_keys_delete(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'sys'):
+            try:
+                key = APIKeys.objects.get(id__exact=int(request.GET['pk']))
+                key.delete()
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
+
+
 def api_getmode(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'mode'):
             return JsonResponse(xmltodict.parse(get_mode(request.GET['modem'])), safe=False)
         else:
             return HttpResponseForbidden()
@@ -69,7 +97,7 @@ def api_getmode(request):
 
 def api_setmode(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:    
+        if api_keys_check(request, 'mode'):
             mode = xmltodict.parse(get_mode(request.GET['modem']))['response']['NetworkMode']
             if mode != '03':
                 mode = '03'
@@ -96,7 +124,7 @@ def api_setmode(request):
 
 def api_reboot(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'reboot'):
             headers = get_token(request.GET['modem'])
             data = """
                    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -116,7 +144,7 @@ def api_reboot(request):
 
 def api_sms_send(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sms'):
             headers = get_token(request.GET['modem'])
             data = """
                    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -144,7 +172,7 @@ def api_sms_send(request):
 
 def api_sms_read(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sms'):
             headers = get_token(request.GET['modem'])
             data = """
                    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -169,7 +197,7 @@ def api_sms_read(request):
 
 def api_sms_delete(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sms'):
             headers = get_token(request.GET['modem'])
             data = """
                    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -189,7 +217,7 @@ def api_sms_delete(request):
 
 def api_ussd(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'ussd'):
             headers = get_token(request.GET['modem'])
             data = """
                    <?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -218,7 +246,7 @@ def api_ussd(request):
 
 def api_signal(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'net'):
             headers = get_token(request.GET['modem'])
             try:
                 status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/device/signal', headers=headers)
@@ -232,7 +260,7 @@ def api_signal(request):
 
 def api_provider(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'net'):
             headers = get_token(request.GET['modem'])
             try:
                 status = requests.get('http://' + get_modem_ip(request.GET['modem']) + '/api/net/current-plmn', headers=headers)
@@ -246,7 +274,7 @@ def api_provider(request):
 
 def api_geo(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'net'):
             headers = get_token(request.GET['modem'])
 
             try:
@@ -273,7 +301,7 @@ def api_geo(request):
 
 def api_check(request):
     if request.method == 'GET':
-        if request.GET['key'] in tokens:
+        if api_keys_check(request, 'sys'):
             modem_ip = get_modem_ip(request.GET['modem']) + '00'
             session = requests.Session()
             try:

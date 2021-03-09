@@ -1,5 +1,4 @@
 from django.urls import path
-#from .views import api_getmode, api_setmode, api_reboot, api_sms_send, api_ussd, api_signal, api_geo, api_sms_read, api_sms_delete, api_provider, api_check, api_get_keys
 from . import views
 
 
@@ -15,6 +14,7 @@ urlpatterns = [
     path('sms/delete/', views.api_sms_delete, name='sms-delete'),
     path('provider/', views.api_provider, name='provider'),
     path('check/', views.api_check, name='check'),
-    path('keys/get/', views.api_get_keys, name='get-keys'),
-    path('keys/create/', views.api_create_keys, name='create-keys'),
+    path('keys/get/', views.api_keys_get, name='keys-get'),
+    path('keys/create/', views.api_keys_create, name='keys-create'),
+    path('keys/delete/', views.api_keys_delete, name='keys-delete'),
 ]
