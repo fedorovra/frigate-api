@@ -16,5 +16,6 @@ urlpatterns = [
     path('check/', views.api_check, name='check'),
     path('keys/get/', views.api_keys_get, name='keys-get'),
     path('keys/create/', views.api_keys_create, name='keys-create'),
+    path('keys/update/', views.api_keys_update, name='keys-update'),
     path('keys/delete/', views.api_keys_delete, name='keys-delete'),
 ]

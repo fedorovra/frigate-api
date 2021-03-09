@@ -73,6 +73,24 @@ def api_keys_create(request):
             return HttpResponseForbidden()
 
 
+def api_keys_update(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'sys'):
+            try:
+                key = APIKeys.objects.get(id__exact=int(request.GET['pk']))
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                if request.GET.get('p'):
+                    key.permissions = request.GET['p']
+                if request.GET.get('a'):
+                    key.is_active = request.GET['a']
+                key.save()
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
+
+
 def api_keys_delete(request):
     if request.method == 'GET':
         if api_keys_check(request, 'sys'):
