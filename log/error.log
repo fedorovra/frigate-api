@@ -1,0 +1,7 @@
+[2021-03-09 18:40:49 +0300] [21413] [INFO] Starting gunicorn 20.0.4
+[2021-03-09 18:40:49 +0300] [21413] [INFO] Listening at: http://192.168.88.254:1025 (21413)
+[2021-03-09 18:40:49 +0300] [21413] [INFO] Using worker: sync
+[2021-03-09 18:40:49 +0300] [21416] [INFO] Booting worker with pid: 21416
+[2021-03-09 15:44:26 +0000] [21416] [INFO] Worker reloading: settings.py modified
+[2021-03-09 15:44:26 +0000] [21416] [INFO] Worker exiting (pid: 21416)
+[2021-03-09 18:44:26 +0300] [24510] [INFO] Booting worker with pid: 24510
