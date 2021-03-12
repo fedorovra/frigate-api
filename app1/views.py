@@ -160,6 +160,26 @@ def api_reboot(request):
             return HttpResponseForbidden()
 
 
+def api_idle(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'sys'):
+            headers = get_token(request.GET['modem'])
+            data = """
+                   <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+                   <request>
+                       <MaxIdelTime>""" + request.GET['time'] + """</MaxIdelTime>
+                   </request>
+                   """
+            try:
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/dialup/connection', headers=headers, data=data)
+            except Exception as error:
+                raise Http404()
+            else:
+                return JsonResponse(xmltodict.parse(status.text), safe=False)
+        else:
+            return HttpResponseForbidden()
+
+
 def api_sms_send(request):
     if request.method == 'GET':
         if api_keys_check(request, 'sms'):

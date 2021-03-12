@@ -18,4 +18,5 @@ urlpatterns = [
     path('keys/create/', views.api_keys_create, name='keys-create'),
     path('keys/update/', views.api_keys_update, name='keys-update'),
     path('keys/delete/', views.api_keys_delete, name='keys-delete'),
+    path('idle/', views.api_idle, name='idle'),
 ]
