@@ -10,8 +10,6 @@ from django.core import serializers
 
 from .models import APIKeys
 
-tokens = ['F64e9CtMpmtjJLfJ','Q7cuaYgpBGj8xtphhbbAUEfZR',]
-
 
 def api_keys_check(request, perm):
     try:
