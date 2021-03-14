@@ -19,4 +19,9 @@ urlpatterns = [
     path('keys/update/', views.api_keys_update, name='keys-update'),
     path('keys/delete/', views.api_keys_delete, name='keys-delete'),
     path('idle/', views.api_idle, name='idle'),
+    path('modem/get/', views.api_modem_get, name='modem-get'),
+    path('modem/create/', views.api_modem_create, name='modem-create'),
+    path('modem/update/', views.api_modem_update, name='modem-update'),
+    path('modem/delete/', views.api_modem_delete, name='modem-delete'),
+    path('balance/', views.api_balance, name='balance'),
 ]

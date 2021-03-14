@@ -7,8 +7,9 @@ import requests
 from requests_toolbelt.adapters import source
 from django.http import Http404, HttpResponseForbidden
 from django.core import serializers
+import os
 
-from .models import APIKeys
+from .models import APIKeys, BalanceData
 
 
 def api_keys_check(request, perm):
@@ -47,6 +48,76 @@ def get_mode(modem):
         raise Http404()
     else:
         return status.text
+
+
+def api_balance(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'balance'):
+            position = BalanceData.objects.get(modem__exact=int(request.GET['modem']))
+            try:
+                balance = os.popen('mobile-balance ' + position.provider + ' --phone=' + position.phone + ' --password=' + position.passw).read()
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                return JsonResponse({ 'balance' : balance.strip() })
+        else:
+            return HttpResponseForbidden()
+
+
+def api_modem_get(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'balance'):
+            return JsonResponse(serializers.serialize('json', BalanceData.objects.all()), safe=False)
+        else:
+            return HttpResponseForbidden()
+
+
+def api_modem_create(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'balance'):
+            try:
+                position = BalanceData.objects.create(modem=request.GET['modem'], provider=request.GET['provider'], phone=request.GET['phone'], passw=request.GET['passw'])
+                position.save()
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
+
+
+def api_modem_update(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'balance'):
+            try:
+                position = BalanceData.objects.get(modem__exact=int(request.GET['modem']))
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                if request.GET.get('phone'):
+                    position.phone = request.GET['phone']
+                if request.GET.get('passw'):
+                    position.passw = request.GET['passw']
+                if request.GET.get('provider'):
+                    position.provider = request.GET['provider']
+                position.save()
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
+
+
+def api_modem_delete(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'sys'):
+            try:
+                position = BalanceData.objects.get(modem__exact=int(request.GET['modem']))
+                position.delete()
+            except Exception as error:
+                return JsonResponse({ 'status' : 'error' })
+            else:
+                return JsonResponse({ 'status' : 'ok'})
+        else:
+            return HttpResponseForbidden()
 
 
 def api_keys_get(request):
