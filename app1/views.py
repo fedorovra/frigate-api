@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from time import sleep
 import xmltodict
 import requests
@@ -67,7 +67,8 @@ def api_balance(request):
 def api_modem_get(request):
     if request.method == 'GET':
         if api_keys_check(request, 'balance'):
-            return JsonResponse(serializers.serialize('json', BalanceData.objects.all()), safe=False)
+#            return JsonResponse(serializers.serialize('json', BalanceData.objects.all()), safe=False)
+            return HttpResponse(serializers.serialize('json', BalanceData.objects.all()), content_type='application/json')
         else:
             return HttpResponseForbidden()
 
@@ -123,7 +124,8 @@ def api_modem_delete(request):
 def api_keys_get(request):
     if request.method == 'GET':
         if api_keys_check(request, 'sys'):
-            return JsonResponse(serializers.serialize('json', APIKeys.objects.all()), safe=False)
+#            return JsonResponse(serializers.serialize('json', APIKeys.objects.all()), safe=False)
+            return HttpResponse(serializers.serialize('json', APIKeys.objects.all()), content_type='application/json')
         else:
             return HttpResponseForbidden()
 
