@@ -8,3 +8,5 @@ s.close()
 bind = ip + ':1025'
 daemon = True
 reload = True
+workers = 5
+threads = 10
