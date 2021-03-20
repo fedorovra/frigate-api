@@ -11,6 +11,8 @@ import os
 
 from .models import APIKeys, BalanceData
 
+from django.views.decorators.cache import never_cache
+
 
 def api_keys_check(request, perm):
     try:
@@ -50,6 +52,7 @@ def get_mode(modem):
         return status.text
 
 
+@never_cache
 def api_balance(request):
     if request.method == 'GET':
         if api_keys_check(request, 'balance'):
