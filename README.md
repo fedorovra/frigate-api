@@ -13,10 +13,11 @@ git clone https://github.com/fedorovra/frigate-api.git
 /bin/bash /root/iptables.rules   
 /bin/bash /root/frigate-api/launcher.sh   
 
-conda activate frigate-api
-pip install mobile-balance
-
-
+conda activate frigate-api   
+   
+pip install mobile-balance  
+   
+   
 В файле "/usr/local/miniconda3/envs/frigate-api/lib/python3.7/site-packages/mobile_balance/megafon.py" строка 16  
 было:  
 csrf_token = re.search(r'name="CSRF" value="(.*?)"', response.content)  
