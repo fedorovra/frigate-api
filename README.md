@@ -17,8 +17,8 @@ conda activate frigate-api
 pip install mobile-balance
 
 
-В файле "/usr/local/miniconda3/envs/frigate-api/lib/python3.7/site-packages/mobile_balance/megafon.py" строка 16
-было:
-csrf_token = re.search(r'name="CSRF" value="(.*?)"', response.content)
-стало:
-csrf_token = re.search(r'name="CSRF" value="(.*?)"', response.content.decode("utf-8"))
+В файле "/usr/local/miniconda3/envs/frigate-api/lib/python3.7/site-packages/mobile_balance/megafon.py" строка 16  
+было:  
+csrf_token = re.search(r'name="CSRF" value="(.*?)"', response.content)  
+стало:  
+csrf_token = re.search(r'name="CSRF" value="(.*?)"', response.content.decode("utf-8"))  
