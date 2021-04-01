@@ -36,7 +36,12 @@ def get_token(modem):
         token = xmltodict.parse(resp.text)['response']['TokInfo']
         session = xmltodict.parse(resp.text)['response']['SesInfo']
     except Exception as error:
-        raise Http404()
+        try:
+            resp = requests.get('http://' + get_modem_ip(modem) + '/api/webserver/token', timeout=1)
+            token = xmltodict.parse(resp.text)['response']['token']
+            session = ''
+        except Exception as error:
+            raise Http404()
     else:
         headers = { 'Cookie' : session, '__RequestVerificationToken' : token}
         return headers
