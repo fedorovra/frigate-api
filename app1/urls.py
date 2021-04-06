@@ -24,4 +24,5 @@ urlpatterns = [
     path('modem/update/', views.api_modem_update, name='modem-update'),
     path('modem/delete/', views.api_modem_delete, name='modem-delete'),
     path('balance/', views.api_balance, name='balance'),
+    path('switch/', views.api_switch, name='switch'),
 ]

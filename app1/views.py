@@ -219,6 +219,37 @@ def api_setmode(request):
             return HttpResponseForbidden()
 
 
+def api_switch(request):
+    if request.method == 'GET':
+        if api_keys_check(request, 'mode'):
+            statusOFF = api_switch_2(request, '0')
+            sleep(3)
+            statusON = api_switch_2(request, '1')
+            return JsonResponse(xmltodict.parse(statusON.text), safe=False)
+        else:
+            return HttpResponseForbidden()
+
+
+def api_switch_2(request, mode):
+    if request.method == 'GET':
+        if api_keys_check(request, 'mode'):
+            headers = get_token(request.GET['modem'])
+            data = """
+                   <?xml version=\"1.0\" encoding=\"UTF-8\"?>
+                   <request>
+                       <dataswitch>""" + mode + """</dataswitch>
+                   </request>
+                   """
+            try:
+                status = requests.post('http://' + get_modem_ip(request.GET['modem']) + '/api/dialup/mobile-dataswitch', headers=headers, data=data)
+            except Exception as error:
+                raise Http404()
+            else:
+                 return status
+        else:
+            return HttpResponseForbidden()
+
+
 def api_reboot(request):
     if request.method == 'GET':
         if api_keys_check(request, 'reboot'):
